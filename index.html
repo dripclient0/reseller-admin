@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reseller Admin</title>
+    <title>Reseller Admin - Professional Panel</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -446,13 +446,12 @@
             border: 1px solid var(--border-main);
             border-radius: 8px;
             padding: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 10px; /* تقليل المسافة لإعطاء مساحة للختم */
             display: flex;
             flex-direction: column;
             gap: 12px;
             max-height: 250px;
             overflow-y: auto;
-            position: relative;
         }
 
         .key-row {
@@ -481,11 +480,17 @@
             opacity: 0.8;
         }
 
-        /* ---------------- الختم الاحترافي ---------------- */
+        /* ---------------- الختم الاحترافي بحاوية مستقلة لمنع التداخل ---------------- */
+        .stamp-container {
+            display: flex;
+            justify-content: flex-end;
+            width: 100%;
+            margin-top: -5px; /* رفع الختم قليلاً للأعلى ليعطي شكل واقعي */
+            margin-bottom: 15px;
+            padding-right: 15px;
+        }
+
         .stamp-effect {
-            position: absolute;
-            top: 15px;
-            right: 15px;
             font-family: 'Roboto', sans-serif;
             color: #ff3a3a;
             font-size: 14px;
@@ -498,8 +503,7 @@
             text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
             cursor: pointer;
             user-select: none;
-            z-index: 10;
-            transition: opacity 0.1s ease-in-out;
+            transition: opacity 0.15s ease-in-out;
             pointer-events: auto; /* يضمن التفاعل حتى لو كانت الشفافية 0 */
         }
 
@@ -509,7 +513,7 @@
             .card { padding: 20px 12px; }
             .dropdown-selected, .dropdown-item { font-size: 12px; }
             .input-label { font-size: 10px; }
-            .stamp-effect { font-size: 12px; right: 10px; top: 10px;}
+            .stamp-effect { font-size: 12px; }
         }
 
     </style>
@@ -642,7 +646,9 @@
             <div class="generated-keys-container" id="keys-container">
                 </div>
             
-            <div class="stamp-effect" id="stamp-duration"></div>
+            <div class="stamp-container">
+                <div class="stamp-effect" id="stamp-duration"></div>
+            </div>
 
             <button class="btn-primary" id="copy-action-btn" onclick="copyToClipboard()">
                 <svg viewBox="0 0 24 24" style="fill:none; stroke:white; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;">
@@ -664,7 +670,8 @@
     const stampEl = document.getElementById('stamp-duration');
     let isStampManuallyHidden = false; 
 
-    stampEl.addEventListener('click', () => {
+    stampEl.addEventListener('click', (e) => {
+        e.stopPropagation(); // منع أي تداخلات أخرى عند النقر
         isStampManuallyHidden = !isStampManuallyHidden;
         updateStampVisibility();
     });
@@ -687,7 +694,7 @@
         }
     });
 
-    // دالة تحديث الحالة (مع الحفاظ على العنصر قابل للضغط)
+    // دالة تحديث الحالة 
     function updateStampVisibility() {
         if (isStampManuallyHidden || document.hidden) {
             stampEl.style.opacity = '0';
@@ -785,6 +792,7 @@
         
         isFirstGeneration = false;
         
+        // تحديث الختم وإظهاره
         const selectedDays = document.getElementById('validity-dropdown').dataset.days;
         stampEl.innerText = `لمدة ${selectedDays} يوم`;
         isStampManuallyHidden = false;
@@ -810,6 +818,7 @@
         });
     }
 
+    // الرجوع للقائمة الأولى
     function goBackToGenerator() {
         document.getElementById('result-view').style.display = 'none';
         document.getElementById('generator-view').style.display = 'block';
