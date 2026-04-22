@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Reseller Admin</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
+
+        :root {
+            --bg-page: #0b0712; 
+            --bg-card: #130a20;
+            --bg-input: #1c112e;
+            --border-main: #351f5b;
+            --text-white: #ffffff;
+            --text-purple-bright: #ab85ea;
+            --text-purple-muted: #8b79a5;
+            --btn-gradient: linear-gradient(90deg, #944dff 0%, #762bf5 100%);
+            --btn-active: linear-gradient(90deg, #a366ff 0%, #8542ff 100%);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Roboto', sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background-color: var(--bg-page);
+            color: var(--text-white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        /* ---------------- الشريط العلوي ---------------- */
+        .top-navbar {
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            background-color: var(--bg-page);
+            border-bottom: 2px solid var(--border-main);
+            margin-bottom: 30px;
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .admin-icon-box {
+            background: #944dff;
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            box-shadow: 0 4px 15px rgba(148, 77, 255, 0.3);
+            flex-shrink: 0;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .admin-icon-box:active {
+            transform: scale(0.95);
+        }
+
+        .admin-icon-box svg {
+            width: 20px;
+            height: 20px;
+            fill: white;
+        }
+
+        .nav-brand h1 {
+            font-size: 16px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .nav-actions {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .wallet-badge {
+            background-color: #071210;
+            border: 1px solid #14402a;
+            color: #2ebc72;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 13px;
+            font-weight: 700;
+            white-space: nowrap;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .menu-toggle {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-main);
+            width: 38px;
+            height: 38px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            flex-shrink: 0;
+        }
+
+        .menu-toggle span {
+            width: 16px;
+            height: 2px;
+            background-color: var(--text-purple-muted);
+            border-radius: 2px;
+        }
+
+        /* ---------------- حاوية المحتوى ---------------- */
+        .main-container {
+            width: 100%;
+            max-width: 420px;
+            padding: 0 16px;
+            margin-bottom: 30px;
+        }
+
+        /* ---------------- الكروت ---------------- */
+        .card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-main);
+            border-radius: 12px;
+            padding: 24px 16px;
+            position: relative;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            width: 100%;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: -1px;
+            left: 5%;
+            width: 60%;
+            height: 2px;
+            background: #ab85ea;
+            box-shadow: 0 0 15px #ab85ea;
+            border-radius: 50%;
+        }
+
+        .card-header {
+            text-align: center;
+            font-size: 16px;
+            font-weight: 700;
+            color: var(--text-purple-bright);
+            margin-bottom: 22px;
+            white-space: nowrap;
+        }
+
+        /* ---------------- تأثيرات الضباب ---------------- */
+        .blur-permanent {
+            filter: blur(4.5px);
+            opacity: 0.8;
+            user-select: none;
+            -webkit-user-select: none;
+            pointer-events: none;
+        }
+
+        .blur-toggle {
+            filter: blur(4.5px);
+            opacity: 0.8;
+            user-select: none;
+            -webkit-user-select: none;
+            cursor: pointer;
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+        
+        .blur-list-item {
+            filter: blur(4.5px);
+            opacity: 0.8;
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+
+        /* ---------------- عناصر الإدخال ---------------- */
+        .input-group {
+            margin-bottom: 16px;
+        }
+
+        .input-label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--text-purple-bright);
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            white-space: nowrap;
+        }
+
+        .input-label svg {
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        .svg-stroke {
+            stroke: var(--text-purple-bright);
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .svg-fill {
+            fill: var(--text-purple-bright);
+            stroke: none;
+        }
+
+        /* ---- القوائم المنسدلة ---- */
+        .custom-dropdown {
+            position: relative;
+            width: 100%;
+        }
+
+        .dropdown-selected {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-main);
+            color: var(--text-white);
+            padding: 14px 14px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.2s;
+        }
+
+        .custom-dropdown.active .dropdown-selected {
+            border-color: #944dff;
+        }
+
+        .dropdown-arrow {
+            width: 14px;
+            height: 14px;
+            transition: transform 0.3s;
+        }
+
+        .custom-dropdown.active .dropdown-arrow {
+            transform: rotate(180deg);
+        }
+
+        .dropdown-list {
+            position: absolute;
+            top: calc(100% + 5px);
+            left: 0;
+            width: 100%;
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-main);
+            border-radius: 8px;
+            z-index: 100;
+            display: none;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.8);
+            overflow: hidden;
+        }
+
+        .custom-dropdown.active .dropdown-list {
+            display: block;
+            animation: fadeIn 0.2s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .dropdown-item {
+            padding: 14px 14px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+            color: var(--text-white);
+            border-bottom: 1px solid rgba(53, 31, 91, 0.4);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .dropdown-item:last-child {
+            border-bottom: none;
+        }
+
+        .dropdown-item:hover {
+            background-color: var(--bg-input);
+        }
+
+        /* ---------------- أزرار الكمية ---------------- */
+        .qty-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-round {
+            background: var(--btn-gradient);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 8px;
+            font-size: 20px;
+            font-weight: bold;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            cursor: pointer;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(148, 77, 255, 0.2);
+        }
+
+        .btn-round:active { transform: scale(0.95); background: var(--btn-active); }
+
+        .qty-controls input {
+            flex: 1;
+            text-align: center;
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-main);
+            color: var(--text-white);
+            font-size: 15px;
+            font-weight: 600;
+            padding: 13px;
+            border-radius: 8px;
+            outline: none;
+        }
+
+        /* ---------------- الزر الرئيسي ---------------- */
+        .btn-primary {
+            width: 100%;
+            background: var(--btn-gradient);
+            color: white;
+            border: none;
+            padding: 14px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            margin-top: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            white-space: nowrap;
+            box-shadow: 0 8px 20px rgba(148, 77, 255, 0.3);
+        }
+
+        .btn-primary:active { transform: scale(0.98); background: var(--btn-active); }
+
+        .btn-primary svg {
+            fill: white;
+            width: 16px;
+            height: 16px;
+            flex-shrink: 0;
+        }
+
+        /* ---------------- واجهة النتيجة ---------------- */
+        #result-view {
+            display: none;
+            width: 100%;
+        }
+
+        .btn-back {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            background: none;
+            border: none;
+            color: var(--text-purple-muted);
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-bottom: 12px;
+            padding: 4px 0;
+        }
+
+        .btn-back:hover { color: var(--text-white); }
+
+        .btn-back svg {
+            width: 18px;
+            height: 18px;
+            stroke: currentColor;
+            stroke-width: 2.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .result-header-title {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-purple-bright);
+            margin-bottom: 20px;
+            white-space: nowrap;
+        }
+
+        .icon-check-circle {
+            background-color: #944dff;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0;
+        }
+
+        .icon-check-circle svg {
+            width: 12px;
+            height: 12px;
+            stroke: white;
+            stroke-width: 3.5;
+            fill: none;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* حاوية الأكواد المولدة (متعددة) */
+        .generated-keys-container {
+            background-color: var(--bg-input);
+            border: 1px solid var(--border-main);
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            max-height: 250px;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .key-row {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-purple-muted);
+            white-space: nowrap;
+        }
+
+        /* ستايل الرقم المولد (واضح افتراضياً، ضبابي عند الضغط) */
+        .key-row .key-val {
+            color: var(--text-white);
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 16px;
+            letter-spacing: 1.5px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: filter 0.3s ease, opacity 0.3s ease;
+        }
+
+        .key-val.is-blurred {
+            filter: blur(4.5px);
+            opacity: 0.8;
+        }
+
+        /* ---------------- الختم الاحترافي ---------------- */
+        .stamp-effect {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-family: 'Roboto', sans-serif;
+            color: #ff3a3a;
+            font-size: 14px;
+            font-weight: 900;
+            border: 2px double #ff3a3a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transform: rotate(-10deg);
+            box-shadow: 0 0 8px rgba(255, 58, 58, 0.4), inset 0 0 5px rgba(255, 58, 58, 0.4);
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
+            cursor: pointer;
+            user-select: none;
+            z-index: 10;
+            transition: opacity 0.1s ease-in-out;
+            pointer-events: auto; /* يضمن التفاعل حتى لو كانت الشفافية 0 */
+        }
+
+        @media (max-width: 360px) {
+            .nav-brand h1 { font-size: 14px; }
+            .wallet-badge { font-size: 12px; }
+            .card { padding: 20px 12px; }
+            .dropdown-selected, .dropdown-item { font-size: 12px; }
+            .input-label { font-size: 10px; }
+            .stamp-effect { font-size: 12px; right: 10px; top: 10px;}
+        }
+
+    </style>
+</head>
+<body>
+
+<div class="top-navbar">
+    <div class="nav-brand">
+        <div class="admin-icon-box" onclick="toggleDropdownPricesBlur()">
+            <svg viewBox="0 0 24 24"><path d="M4 19h16v2H4zM4 17l2-11 4 4 2-6 2 6 4-4 2 11z"/></svg>
+        </div>
+        <h1>Reseller Admin</h1>
+    </div>
+    <div class="nav-actions">
+        <div class="wallet-badge">
+            $ <span id="wallet-balance" class="blur-toggle" onclick="this.classList.toggle('blur-toggle')">500.00</span>
+        </div>
+        <div class="menu-toggle">
+            <span></span><span></span><span></span>
+        </div>
+    </div>
+</div>
+
+<div class="main-container">
+    
+    <div id="generator-view">
+        <div class="card">
+            <div class="card-header">Key Generator</div>
+
+            <div class="input-group">
+                <label class="input-label">
+                    <svg class="svg-stroke" viewBox="0 0 24 24">
+                        <path d="M21 8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"></path>
+                        <path d="m3.3 7 8.7 5 8.7-5"></path>
+                        <path d="M12 22V12"></path>
+                    </svg>
+                    PRODUCT TYPE:
+                </label>
+                <div class="custom-dropdown" id="product-dropdown">
+                    <div class="dropdown-selected">
+                        <span class="selected-text">DRIP CLIENT - APK MOD</span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ab85ea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="dropdown-arrow"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item" data-text="DRIP CLIENT - APK MOD">DRIP CLIENT - APK MOD</div>
+                        <div class="dropdown-item" data-text="DRIP CLIENT - PC EXE">DRIP CLIENT - PC EXE</div>
+                        <div class="dropdown-item" data-text="DRIP CLIENT - ROOT">DRIP CLIENT - ROOT</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">
+                    <svg class="svg-fill" viewBox="0 0 24 24">
+                        <path d="M18 4H6v5.5c0 1.9 1.1 3.6 2.8 4.5-.8.5-1.4 1.2-1.9 2.1-.6 1-.9 2.1-.9 3.4V20h12v-1.5c0-1.3-.3-2.4-.9-3.4-.5-.9-1.1-1.6-1.9-2.1 1.7-.9 2.8-2.6 2.8-4.5V4z"></path>
+                    </svg>
+                    VALIDITY:
+                </label>
+                <div class="custom-dropdown" id="validity-dropdown" data-price="2" data-days="1">
+                    <div class="dropdown-selected">
+                        <span class="selected-text">1 Days - $<span class="blur-permanent">2.00</span></span>
+                        <svg viewBox="0 0 24 24" fill="none" stroke="#ab85ea" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="dropdown-arrow"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </div>
+                    <div class="dropdown-list">
+                        <div class="dropdown-item" data-val="2">
+                            <span class="days-text">1 Days</span>
+                            <span class="price-display">$<span class="price-val">2.00</span></span>
+                        </div>
+                        <div class="dropdown-item" data-val="3">
+                            <span class="days-text">3 Days</span>
+                            <span class="price-display">$<span class="price-val">3.00</span></span>
+                        </div>
+                        <div class="dropdown-item" data-val="4">
+                            <span class="days-text">7 Days</span>
+                            <span class="price-display">$<span class="price-val">4.00</span></span>
+                        </div>
+                        <div class="dropdown-item" data-val="5">
+                            <span class="days-text">15 Days</span>
+                            <span class="price-display">$<span class="price-val">5.00</span></span>
+                        </div>
+                        <div class="dropdown-item" data-val="6">
+                            <span class="days-text">30 Days</span>
+                            <span class="price-display">$<span class="price-val">6.00</span></span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="input-group">
+                <label class="input-label">
+                    <svg class="svg-fill" viewBox="0 0 24 24">
+                        <rect x="10" y="4" width="4" height="4" rx="1"/>
+                        <rect x="6" y="10" width="4" height="4" rx="1"/>
+                        <rect x="14" y="10" width="4" height="4" rx="1"/>
+                        <rect x="10" y="16" width="4" height="4" rx="1"/>
+                    </svg>
+                    QUANTITY:
+                </label>
+                <div class="qty-controls">
+                    <button class="btn-round" onclick="changeQuantity(-1)">-</button>
+                    <input type="text" id="qty-input" value="1" readonly>
+                    <button class="btn-round" onclick="changeQuantity(1)">+</button>
+                </div>
+            </div>
+
+            <button class="btn-primary" onclick="generateRandomKeys()">
+                <svg viewBox="0 0 24 24"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+                GENERATE KEYS
+            </button>
+        </div>
+    </div>
+
+    <div id="result-view">
+        <button class="btn-back" onclick="goBackToGenerator()">
+            <svg viewBox="0 0 24 24">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back
+        </button>
+
+        <div class="card">
+            <div class="result-header-title">
+                <div class="icon-check-circle">
+                    <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                </div>
+                Generated Keys
+            </div>
+
+            <div class="generated-keys-container" id="keys-container">
+                </div>
+            
+            <div class="stamp-effect" id="stamp-duration"></div>
+
+            <button class="btn-primary" id="copy-action-btn" onclick="copyToClipboard()">
+                <svg viewBox="0 0 24 24" style="fill:none; stroke:white; stroke-width:2.5; stroke-linecap:round; stroke-linejoin:round;">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                    <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                </svg>
+                COPY KEYS
+            </button>
+        </div>
+    </div>
+
+</div>
+
+<script>
+    let currentWalletBalance = 500.00;
+    let isFirstGeneration = true;
+
+    // --- برمجة الختم والاستشعار الذكي ---
+    const stampEl = document.getElementById('stamp-duration');
+    let isStampManuallyHidden = false; 
+
+    stampEl.addEventListener('click', () => {
+        isStampManuallyHidden = !isStampManuallyHidden;
+        updateStampVisibility();
+    });
+
+    // إخفاء فورى عند فقدان التركيز (الشفافية فقط لتظل قابلة للضغط)
+    window.addEventListener('blur', () => {
+        stampEl.style.opacity = '0';
+    });
+
+    // استرجاع عند العودة
+    window.addEventListener('focus', () => {
+        updateStampVisibility();
+    });
+
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) {
+            stampEl.style.opacity = '0';
+        } else {
+            updateStampVisibility();
+        }
+    });
+
+    // دالة تحديث الحالة (مع الحفاظ على العنصر قابل للضغط)
+    function updateStampVisibility() {
+        if (isStampManuallyHidden || document.hidden) {
+            stampEl.style.opacity = '0';
+        } else {
+            stampEl.style.opacity = '1';
+        }
+    }
+
+    // تفعيل/تعطيل الضباب في القائمة
+    function toggleDropdownPricesBlur() {
+        const listPrices = document.querySelectorAll('.dropdown-list .price-val');
+        listPrices.forEach(priceEl => {
+            priceEl.classList.toggle('blur-list-item');
+        });
+    }
+
+    // منطق القوائم
+    document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
+        const selected = dropdown.querySelector('.dropdown-selected');
+        const display = selected.querySelector('.selected-text');
+
+        selected.addEventListener('click', (e) => {
+            document.querySelectorAll('.custom-dropdown').forEach(d => {
+                if(d !== dropdown) d.classList.remove('active');
+            });
+            dropdown.classList.toggle('active');
+            e.stopPropagation();
+        });
+
+        dropdown.querySelectorAll('.dropdown-item').forEach(item => {
+            item.addEventListener('click', () => {
+                if (dropdown.id === 'validity-dropdown') {
+                    const daysText = item.querySelector('.days-text').innerText;
+                    const priceVal = item.querySelector('.price-val').innerText;
+                    const daysNumber = daysText.split(' ')[0];
+                    
+                    display.innerHTML = `${daysText} - $<span class="blur-permanent">${priceVal}</span>`;
+                    dropdown.dataset.price = item.getAttribute('data-val');
+                    dropdown.dataset.days = daysNumber; 
+                } else {
+                    display.innerText = item.getAttribute('data-text');
+                }
+                dropdown.classList.remove('active');
+            });
+        });
+    });
+
+    document.addEventListener('click', () => {
+        document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('active'));
+    });
+
+    // الكمية
+    function changeQuantity(amount) {
+        const inputField = document.getElementById('qty-input');
+        let currentVal = parseInt(inputField.value);
+        let newVal = currentVal + amount;
+        if (newVal >= 1 && newVal <= 100) {
+            inputField.value = newVal;
+        }
+    }
+
+    // توليد الأكواد
+    function generateRandomKeys() {
+        const qty = parseInt(document.getElementById('qty-input').value);
+        const pricePerKey = parseFloat(document.getElementById('validity-dropdown').dataset.price);
+        const totalRequired = pricePerKey * qty;
+
+        if (currentWalletBalance < totalRequired) {
+            alert("عذراً، رصيدك غير كافٍ لإتمام هذه العملية!");
+            return;
+        }
+
+        currentWalletBalance -= totalRequired;
+        document.getElementById('wallet-balance').innerText = currentWalletBalance.toFixed(2);
+
+        const keysContainer = document.getElementById('keys-container');
+        keysContainer.innerHTML = '';
+
+        for (let i = 0; i < qty; i++) {
+            let generatedKeyValue = "";
+            
+            if (isFirstGeneration && i === 0) {
+                generatedKeyValue = "5702271300"; 
+            } else {
+                generatedKeyValue = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+            }
+
+            const keyRow = document.createElement('div');
+            keyRow.className = 'key-row';
+            // الرقم المولد هنا ليس عليه ضباب افتراضياً (يُضاف عند الضغط)
+            keyRow.innerHTML = `Key: <span class="key-val" onclick="this.classList.toggle('is-blurred')">${generatedKeyValue}</span>`;
+            
+            keysContainer.appendChild(keyRow);
+        }
+        
+        isFirstGeneration = false;
+        
+        const selectedDays = document.getElementById('validity-dropdown').dataset.days;
+        stampEl.innerText = `لمدة ${selectedDays} يوم`;
+        isStampManuallyHidden = false;
+        updateStampVisibility();
+
+        document.getElementById('generator-view').style.display = 'none';
+        document.getElementById('result-view').style.display = 'block';
+    }
+
+    // نسخ
+    function copyToClipboard() {
+        const allKeys = Array.from(document.querySelectorAll('.key-val')).map(el => el.innerText).join('\n');
+        
+        navigator.clipboard.writeText(allKeys).then(() => {
+            const copyBtn = document.getElementById('copy-action-btn');
+            const originalHTML = copyBtn.innerHTML;
+            
+            copyBtn.innerHTML = 'COPIED!';
+            
+            setTimeout(() => { 
+                copyBtn.innerHTML = originalHTML; 
+            }, 2000);
+        });
+    }
+
+    function goBackToGenerator() {
+        document.getElementById('result-view').style.display = 'none';
+        document.getElementById('generator-view').style.display = 'block';
+    }
+</script>
+
+</body>
+</html>
