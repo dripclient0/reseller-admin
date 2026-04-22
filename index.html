@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Reseller Admin - Professional Panel</title>
+    <title>Reseller Admin</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap');
 
@@ -440,13 +440,19 @@
             stroke-linejoin: round;
         }
 
-        /* حاوية الأكواد المولدة (متعددة) */
+        /* حاوية الأكواد مع الختم المدمج بشكل آمن */
+        .generated-keys-wrapper {
+            position: relative;
+            width: 100%;
+            margin-bottom: 20px;
+        }
+
         .generated-keys-container {
             background-color: var(--bg-input);
             border: 1px solid var(--border-main);
             border-radius: 8px;
-            padding: 16px;
-            margin-bottom: 10px; /* تقليل المسافة لإعطاء مساحة للختم */
+            /* تم زيادة الـ padding من اليمين والأعلى لتجنب أي تداخل مع الختم */
+            padding: 24px 90px 16px 16px; 
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -480,40 +486,34 @@
             opacity: 0.8;
         }
 
-        /* ---------------- الختم الاحترافي بحاوية مستقلة لمنع التداخل ---------------- */
-        .stamp-container {
-            display: flex;
-            justify-content: flex-end;
-            width: 100%;
-            margin-top: -5px; /* رفع الختم قليلاً للأعلى ليعطي شكل واقعي */
-            margin-bottom: 15px;
-            padding-right: 15px;
-        }
-
+        /* ---------------- الختم الاحترافي العالي ---------------- */
         .stamp-effect {
+            position: absolute;
+            top: 12px;
+            right: 12px;
             font-family: 'Roboto', sans-serif;
             color: #ff3a3a;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 900;
             border: 2px double #ff3a3a;
             padding: 4px 8px;
             border-radius: 4px;
-            transform: rotate(-10deg);
+            transform: rotate(-8deg);
             box-shadow: 0 0 8px rgba(255, 58, 58, 0.4), inset 0 0 5px rgba(255, 58, 58, 0.4);
             text-shadow: 1px 1px 2px rgba(0,0,0,0.6);
             cursor: pointer;
             user-select: none;
+            z-index: 10;
             transition: opacity 0.15s ease-in-out;
-            pointer-events: auto; /* يضمن التفاعل حتى لو كانت الشفافية 0 */
+            pointer-events: auto; /* يضمن إمكانية الضغط لإعادته عند الاختفاء */
         }
 
         @media (max-width: 360px) {
             .nav-brand h1 { font-size: 14px; }
             .wallet-badge { font-size: 12px; }
             .card { padding: 20px 12px; }
-            .dropdown-selected, .dropdown-item { font-size: 12px; }
-            .input-label { font-size: 10px; }
-            .stamp-effect { font-size: 12px; }
+            .generated-keys-container { padding: 20px 75px 12px 12px; }
+            .stamp-effect { font-size: 11px; top: 8px; right: 8px; padding: 3px 6px; }
         }
 
     </style>
@@ -643,10 +643,10 @@
                 Generated Keys
             </div>
 
-            <div class="generated-keys-container" id="keys-container">
-                </div>
-            
-            <div class="stamp-container">
+            <div class="generated-keys-wrapper">
+                <div class="generated-keys-container" id="keys-container">
+                    </div>
+                
                 <div class="stamp-effect" id="stamp-duration"></div>
             </div>
 
@@ -671,17 +671,15 @@
     let isStampManuallyHidden = false; 
 
     stampEl.addEventListener('click', (e) => {
-        e.stopPropagation(); // منع أي تداخلات أخرى عند النقر
+        e.stopPropagation();
         isStampManuallyHidden = !isStampManuallyHidden;
         updateStampVisibility();
     });
 
-    // إخفاء فورى عند فقدان التركيز (الشفافية فقط لتظل قابلة للضغط)
     window.addEventListener('blur', () => {
         stampEl.style.opacity = '0';
     });
 
-    // استرجاع عند العودة
     window.addEventListener('focus', () => {
         updateStampVisibility();
     });
@@ -694,7 +692,6 @@
         }
     });
 
-    // دالة تحديث الحالة 
     function updateStampVisibility() {
         if (isStampManuallyHidden || document.hidden) {
             stampEl.style.opacity = '0';
@@ -784,7 +781,6 @@
 
             const keyRow = document.createElement('div');
             keyRow.className = 'key-row';
-            // الرقم المولد هنا ليس عليه ضباب افتراضياً (يُضاف عند الضغط)
             keyRow.innerHTML = `Key: <span class="key-val" onclick="this.classList.toggle('is-blurred')">${generatedKeyValue}</span>`;
             
             keysContainer.appendChild(keyRow);
@@ -792,7 +788,6 @@
         
         isFirstGeneration = false;
         
-        // تحديث الختم وإظهاره
         const selectedDays = document.getElementById('validity-dropdown').dataset.days;
         stampEl.innerText = `لمدة ${selectedDays} يوم`;
         isStampManuallyHidden = false;
@@ -818,7 +813,6 @@
         });
     }
 
-    // الرجوع للقائمة الأولى
     function goBackToGenerator() {
         document.getElementById('result-view').style.display = 'none';
         document.getElementById('generator-view').style.display = 'block';
