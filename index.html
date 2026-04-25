@@ -451,8 +451,8 @@
             background-color: var(--bg-input);
             border: 1px solid var(--border-main);
             border-radius: 8px;
-            /* تم زيادة الـ padding من اليمين والأعلى لتجنب أي تداخل مع الختم */
-            padding: 24px 90px 16px 16px; 
+            /* مساحة داخلية متوازنة تمنع التداخل مع الصورة */
+            padding: 24px 90px 16px 55px; 
             display: flex;
             flex-direction: column;
             gap: 12px;
@@ -470,7 +470,7 @@
             white-space: nowrap;
         }
 
-        /* ستايل الرقم المولد (واضح افتراضياً، ضبابي عند الضغط) */
+        /* ستايل الرقم المولد */
         .key-row .key-val {
             color: var(--text-white);
             font-family: 'Courier New', Courier, monospace;
@@ -505,15 +505,55 @@
             user-select: none;
             z-index: 10;
             transition: opacity 0.15s ease-in-out;
-            pointer-events: auto; /* يضمن إمكانية الضغط لإعادته عند الاختفاء */
+            pointer-events: auto;
+        }
+
+        /* ---------------- الصورة في مكانها الأصلي ---------------- */
+        .logo-stamp-effect {
+            position: absolute;
+            top: 16px; 
+            left: 12px;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+            z-index: 10;
+            object-fit: cover;
+            border: 1px solid var(--border-main);
+            transition: opacity 0.15s ease-in-out;
+            pointer-events: auto; /* تم التعديل لتصبح قابلة للضغط */
+            cursor: pointer;
+        }
+
+        /* ---------------- اسم الهاك فوق الصورة مباشرة ---------------- */
+        .hack-name-stamp {
+            position: absolute;
+            top: 4px; 
+            left: 10px;
+            font-family: 'Roboto', sans-serif;
+            color: #ffffff;
+            background-color: #944dff;
+            font-size: 9px;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            white-space: nowrap;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.5);
+            z-index: 11;
+            pointer-events: none; /* يتجاهل الضغط ليمر للوجو بالأسفل */
+            transition: opacity 0.15s ease-in-out;
         }
 
         @media (max-width: 360px) {
             .nav-brand h1 { font-size: 14px; }
             .wallet-badge { font-size: 12px; }
             .card { padding: 20px 12px; }
-            .generated-keys-container { padding: 20px 75px 12px 12px; }
+            .generated-keys-container { padding: 20px 75px 12px 50px; }
             .stamp-effect { font-size: 11px; top: 8px; right: 8px; padding: 3px 6px; }
+            .logo-stamp-effect { width: 28px; height: 28px; top: 14px; left: 8px; }
+            .hack-name-stamp { font-size: 8px; top: 2px; left: 6px; padding: 1px 4px; }
         }
 
     </style>
@@ -561,6 +601,7 @@
                         <div class="dropdown-item" data-text="DRIP CLIENT - APK MOD">DRIP CLIENT - APK MOD</div>
                         <div class="dropdown-item" data-text="DRIP CLIENT - PC EXE">DRIP CLIENT - PC EXE</div>
                         <div class="dropdown-item" data-text="DRIP CLIENT - ROOT">DRIP CLIENT - ROOT</div>
+                        <div class="dropdown-item" data-text="PATO TEAM - APK MOD">PATO TEAM - APK MOD</div>
                     </div>
                 </div>
             </div>
@@ -644,8 +685,12 @@
             </div>
 
             <div class="generated-keys-wrapper">
+                
+                <div id="hack-name-stamp" class="hack-name-stamp" style="display:none;"></div>
+                <img class="logo-stamp-effect" id="logo-stamp" src="" alt="logo" style="display:none;">
+
                 <div class="generated-keys-container" id="keys-container">
-                    </div>
+                </div>
                 
                 <div class="stamp-effect" id="stamp-duration"></div>
             </div>
@@ -666,41 +711,50 @@
     let currentWalletBalance = 500.00;
     let isFirstGeneration = true;
 
-    // --- برمجة الختم والاستشعار الذكي ---
     const stampEl = document.getElementById('stamp-duration');
-    let isStampManuallyHidden = false; 
+    const logoStampEl = document.getElementById('logo-stamp');
+    const hackNameStampEl = document.getElementById('hack-name-stamp');
+    
+    // متغيرات لفصل الإخفاء اليدوي لكل ختم
+    let isDurationHidden = false; 
+    let isBrandHidden = false;
 
+    // حدث إخفاء مدة الأيام فقط
     stampEl.addEventListener('click', (e) => {
         e.stopPropagation();
-        isStampManuallyHidden = !isStampManuallyHidden;
-        updateStampVisibility();
+        isDurationHidden = !isDurationHidden;
+        stampEl.style.opacity = isDurationHidden ? '0' : '1';
     });
 
-    window.addEventListener('blur', () => {
-        stampEl.style.opacity = '0';
+    // حدث إخفاء اللوجو واسم الهاك فقط
+    logoStampEl.addEventListener('click', (e) => {
+        e.stopPropagation();
+        isBrandHidden = !isBrandHidden;
+        logoStampEl.style.opacity = isBrandHidden ? '0' : '1';
+        hackNameStampEl.style.opacity = isBrandHidden ? '0' : '1';
     });
 
-    window.addEventListener('focus', () => {
-        updateStampVisibility();
-    });
-
-    document.addEventListener('visibilitychange', () => {
-        if (document.hidden) {
-            stampEl.style.opacity = '0';
-        } else {
-            updateStampVisibility();
-        }
-    });
-
-    function updateStampVisibility() {
-        if (isStampManuallyHidden || document.hidden) {
-            stampEl.style.opacity = '0';
-        } else {
-            stampEl.style.opacity = '1';
-        }
+    // دوال للتحكم بظهور الأختام عند التبديل بين النوافذ أو تصوير الشاشة
+    function handleFocus() {
+        stampEl.style.opacity = isDurationHidden ? '0' : '1';
+        logoStampEl.style.opacity = isBrandHidden ? '0' : '1';
+        hackNameStampEl.style.opacity = isBrandHidden ? '0' : '1';
     }
 
-    // تفعيل/تعطيل الضباب في القائمة
+    function handleBlur() {
+        stampEl.style.opacity = '0';
+        logoStampEl.style.opacity = '0';
+        hackNameStampEl.style.opacity = '0';
+    }
+
+    window.addEventListener('blur', handleBlur);
+    window.addEventListener('focus', handleFocus);
+    
+    document.addEventListener('visibilitychange', () => {
+        if (document.hidden) handleBlur();
+        else handleFocus();
+    });
+
     function toggleDropdownPricesBlur() {
         const listPrices = document.querySelectorAll('.dropdown-list .price-val');
         listPrices.forEach(priceEl => {
@@ -708,7 +762,6 @@
         });
     }
 
-    // منطق القوائم
     document.querySelectorAll('.custom-dropdown').forEach(dropdown => {
         const selected = dropdown.querySelector('.dropdown-selected');
         const display = selected.querySelector('.selected-text');
@@ -727,12 +780,25 @@
                     const daysText = item.querySelector('.days-text').innerText;
                     const priceVal = item.querySelector('.price-val').innerText;
                     const daysNumber = daysText.split(' ')[0];
-                    
                     display.innerHTML = `${daysText} - $<span class="blur-permanent">${priceVal}</span>`;
                     dropdown.dataset.price = item.getAttribute('data-val');
                     dropdown.dataset.days = daysNumber; 
-                } else {
-                    display.innerText = item.getAttribute('data-text');
+                } else if (dropdown.id === 'product-dropdown') {
+                    const productText = item.getAttribute('data-text');
+                    display.innerText = productText;
+                    const validityDropdown = document.getElementById('validity-dropdown');
+                    const validityDisplay = validityDropdown.querySelector('.selected-text');
+                    const days1Item = validityDropdown.querySelector('.dropdown-item[data-val="2"]');
+                    if (productText.includes('PATO')) {
+                        if (days1Item) days1Item.style.display = 'none';
+                        if (validityDropdown.dataset.days === "1") {
+                            validityDisplay.innerHTML = `3 Days - $<span class="blur-permanent">3.00</span>`;
+                            validityDropdown.dataset.price = "3";
+                            validityDropdown.dataset.days = "3";
+                        }
+                    } else {
+                        if (days1Item) days1Item.style.display = 'flex';
+                    }
                 }
                 dropdown.classList.remove('active');
             });
@@ -743,7 +809,6 @@
         document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('active'));
     });
 
-    // الكمية
     function changeQuantity(amount) {
         const inputField = document.getElementById('qty-input');
         let currentVal = parseInt(inputField.value);
@@ -753,11 +818,12 @@
         }
     }
 
-    // توليد الأكواد
     function generateRandomKeys() {
         const qty = parseInt(document.getElementById('qty-input').value);
         const pricePerKey = parseFloat(document.getElementById('validity-dropdown').dataset.price);
         const totalRequired = pricePerKey * qty;
+        const productType = document.querySelector('#product-dropdown .selected-text').innerText;
+        const isPato = productType.includes('PATO');
 
         if (currentWalletBalance < totalRequired) {
             alert("عذراً، رصيدك غير كافٍ لإتمام هذه العملية!");
@@ -767,49 +833,61 @@
         currentWalletBalance -= totalRequired;
         document.getElementById('wallet-balance').innerText = currentWalletBalance.toFixed(2);
 
+        // استخراج اسم الهاك فقط ووضعه فوق الصورة
+        const hackNameOnly = productType.split(' - ')[0];
+        hackNameStampEl.innerText = hackNameOnly;
+
         const keysContainer = document.getElementById('keys-container');
         keysContainer.innerHTML = '';
 
         for (let i = 0; i < qty; i++) {
             let generatedKeyValue = "";
-            
-            if (isFirstGeneration && i === 0) {
-                generatedKeyValue = "5702271300"; 
+            if (isPato) {
+                const random6Digits = Math.floor(100000 + Math.random() * 900000).toString();
+                generatedKeyValue = `pato${random6Digits}`;
             } else {
-                generatedKeyValue = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+                if (isFirstGeneration && i === 0) {
+                    generatedKeyValue = "5702271300"; 
+                } else {
+                    generatedKeyValue = Math.floor(1000000000 + Math.random() * 9000000000).toString();
+                }
             }
-
             const keyRow = document.createElement('div');
             keyRow.className = 'key-row';
             keyRow.innerHTML = `Key: <span class="key-val" onclick="this.classList.toggle('is-blurred')">${generatedKeyValue}</span>`;
-            
             keysContainer.appendChild(keyRow);
         }
         
-        isFirstGeneration = false;
-        
+        if (!isPato) isFirstGeneration = false;
         const selectedDays = document.getElementById('validity-dropdown').dataset.days;
         stampEl.innerText = `لمدة ${selectedDays} يوم`;
-        isStampManuallyHidden = false;
-        updateStampVisibility();
-
+        
+        // إظهار الاسم والصورة
+        hackNameStampEl.style.display = 'block';
+        logoStampEl.style.display = 'block';
+        
+        if (isPato) {
+            logoStampEl.src = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEi9Jpz_PMj8S33odaKKaHvzpX6ehJLIwQZJGbFEfZaZx-XTe-G08GAwSprX5JZKl0CcAaV9MeipHjf84O-Lo_qp56aF2DLHFW_XHoi8ZZNH-0g90V2w-OBlOL1fs4wBneO7ncwJEa6RXdipdLo0DTpr4bm6BXkBF9To6svpSc-BDNECHdrVvralJbVI3eE/s225/images%20%281%29.jpg";
+        } else {
+            logoStampEl.src = "https://blogger.googleusercontent.com/img/b/R29vZ2xl/AVvXsEgdm0M-ULRdx27lb3p3_FvlXHsVPKVM9bEOMSUdKzK6C5EyoggwToBImGfVfRbuLJWw9AR75duHQe9OwKxJ0ETEUFTHPIRp6UZQYOnpClH6eQM1ung1ilePw0zVS1Ijnlnj5WkDPF-asid_Rk3GfoQOnQ6t17f7Hf-PnrZU0pRJlzqew7Mmvm4jlYnFmiE/s225/images.jpg";
+        }
+        
+        // إعادة تعيين حالة الإخفاء للوضع الطبيعي عند إنشاء أكواد جديدة
+        isDurationHidden = false;
+        isBrandHidden = false;
+        handleFocus();
+        
         document.getElementById('generator-view').style.display = 'none';
         document.getElementById('result-view').style.display = 'block';
     }
 
-    // نسخ
     function copyToClipboard() {
         const allKeys = Array.from(document.querySelectorAll('.key-val')).map(el => el.innerText).join('\n');
-        
         navigator.clipboard.writeText(allKeys).then(() => {
             const copyBtn = document.getElementById('copy-action-btn');
             const originalHTML = copyBtn.innerHTML;
-            
             copyBtn.innerHTML = 'COPIED!';
-            
-            setTimeout(() => { 
-                copyBtn.innerHTML = originalHTML; 
-            }, 2000);
+            setTimeout(() => { copyBtn.innerHTML = originalHTML; }, 2000);
         });
     }
 
